@@ -3,8 +3,6 @@ from utils import *
 from depth_estimation import *
 from pc_functions import *
 
-img_path = "imgs/sand_example.jpeg"
-
 
 def predict(img_path, depth_save_dir,
     segmentation_model_path = "./segmentation_model/pointrend_resnet50.pkl", 

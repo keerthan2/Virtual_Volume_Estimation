@@ -172,6 +172,8 @@ class DepthCalibrationPipeline:
     self.segmentation_img = segmentor_output[1]
     self.midas_pred, self.depth_map = self.get_depth_map(img_path)
     if depth_save_dir is not None:
+      if not os.path.exists(depth_save_dir):
+        os.makedirs(depth_save_dir)
       processed_depth_map = self.depth_model.post_process_depth(self.midas_pred, bits=1)
       # depth_img = Image.fromarray(255-np.uint8(self.depth_map*255)).convert('RGB')
       fname = img_path.split('/')[-1]
