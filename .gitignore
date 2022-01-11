@@ -1,5 +1,14 @@
 midas_depth/weights/dpt_hybrid-midas-501f0c75.pt
 segmentation_model/pointrend_resnet50.pkl
+
 !depth_output
 depth_output/*
 !depth_output/.placeholder
+
+!imgs
+imgs
+!imgs/.placeholder
+
+!point_clouds
+point_clouds
+!point_clouds/.placeholder
