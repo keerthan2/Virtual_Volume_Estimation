@@ -1,0 +1,2 @@
+midas_depth/weights/dpt_hybrid-midas-501f0c75.pt
+segmentation_model/pointrend_resnet50.pkl
