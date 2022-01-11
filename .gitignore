@@ -5,9 +5,9 @@ segmentation_model/pointrend_resnet50.pkl
 depth_output/*
 !depth_output/.placeholder
 
-!imgs
-imgs
-!imgs/.placeholder
+#!imgs
+#imgs
+#!imgs/.placeholder
 
 !point_clouds
 point_clouds
