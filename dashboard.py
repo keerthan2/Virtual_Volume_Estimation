@@ -31,7 +31,7 @@ submit = None
 
 # page = st.sidebar.selectbox('Page Navigation', ["3D model estimation", "Under the hood"])
 
-st.sidebar.markdown("""---""")
+# st.sidebar.markdown("""---""")
 st.sidebar.write("Created by [RA Keerthan](https://github.com/keerthan2)")
 st.sidebar.image("static/logo.png", width=100)
 
