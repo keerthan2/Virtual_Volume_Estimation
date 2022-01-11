@@ -3,7 +3,7 @@ from utils import *
 
 class DepthEstimator:
   
-  def __init__(self, model_path, model_type="large", optimize=True):    
+  def __init__(self, model_path, model_type="large", optimize=False):    
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     self.optimize = optimize
     if model_type == "dpt_large": # DPT-Large
@@ -91,9 +91,9 @@ class DepthEstimator:
 
     with torch.no_grad():
         sample = torch.from_numpy(img_input).to(self.device).unsqueeze(0)
-        if self.optimize and self.device == torch.device("cuda"):
-            sample = sample.to(memory_format=torch.channels_last)  
-            sample = sample.half()
+        # if self.optimize and self.device == torch.device("cuda"):
+        #     sample = sample.to(memory_format=torch.channels_last)  
+        #     sample = sample.half()
         prediction = self.model.forward(sample)
         prediction = (
             torch.nn.functional.interpolate(
@@ -111,7 +111,7 @@ class DepthEstimator:
 
 
 class DepthCalibrationPipeline:
-  def __init__(self, segmentation_model_path, depth_model_base_path, depth_model_type = "dpt_hybrid", depth_optimize = True):
+  def __init__(self, segmentation_model_path, depth_model_base_path, depth_model_type = "dpt_hybrid", depth_optimize = False):
   
     self.segmentation_model_path = segmentation_model_path
     self.ins = instanceSegmentation()
@@ -172,8 +172,6 @@ class DepthCalibrationPipeline:
     self.segmentation_img = segmentor_output[1]
     self.midas_pred, self.depth_map = self.get_depth_map(img_path)
     if depth_save_dir is not None:
-      if not os.path.exists(depth_save_dir):
-        os.makedirs(depth_save_dir)
       processed_depth_map = self.depth_model.post_process_depth(self.midas_pred, bits=1)
       # depth_img = Image.fromarray(255-np.uint8(self.depth_map*255)).convert('RGB')
       fname = img_path.split('/')[-1]

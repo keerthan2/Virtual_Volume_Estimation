@@ -3,11 +3,13 @@ from utils import *
 from depth_estimation import *
 from pc_functions import *
 
+img_path = "imgs/sand_example.jpeg"
+
 
 def predict(img_path, depth_save_dir,
     segmentation_model_path = "./segmentation_model/pointrend_resnet50.pkl", 
     depth_model_base_path = './midas_depth/weights/',
-    cam_mat_save_path = os.path.join('cam_mattrix/cameraIntrinsic_apple.xml'),
+    cam_mat_save_path = os.path.join('cam_matrix/cameraIntrinsic_apple.xml'),
     cloud_save_dir = "./point_clouds",
     isCalib = False,
     isVoxelDown = False,
@@ -75,5 +77,6 @@ def predict(img_path, depth_save_dir,
 
         volume = reduce(lambda a, b:  a + volume_under_triangle(b), get_triangles_vertices(surface.triangles, surface.vertices), 0)
         print(f"The volume is: {round(volume, 4)} m3")
-
+    
     return depth_calibration_pipeline
+
