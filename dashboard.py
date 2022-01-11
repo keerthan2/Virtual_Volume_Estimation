@@ -17,7 +17,6 @@ def save_uploaded_file(uploaded_file, save_path='static/images'):
         return None
 
 save_path = 'static/images'
-
 depth_save_dir = "depth_output"
 segmentation_model_path = "./segmentation_model/pointrend_resnet50.pkl"
 depth_model_base_path = './midas_depth/weights/'
