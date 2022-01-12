@@ -24,10 +24,6 @@ cam_mat_save_path = os.path.join('cam_matrix/cameraIntrinsic_apple.xml')
 cloud_save_dir = "./point_clouds"
 
 st.title('DDP-1: 2D to 3D converter')
-valid_molecule = True
-loaded_molecule = None
-selection = None
-submit = None
 
 # page = st.sidebar.selectbox('Page Navigation', ["3D model estimation", "Under the hood"])
 
