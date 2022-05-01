@@ -1,9 +1,9 @@
 from imports import *
-from utils import *
+from integration_utils import *
 from depth_estimation import *
 from pc_functions import *
 
-img_path = "imgs/sand_example.jpeg"
+# img_path = "imgs/sand_example.jpeg"
 
 
 def predict(img_path, depth_save_dir,
@@ -11,6 +11,10 @@ def predict(img_path, depth_save_dir,
     depth_model_base_path = './midas_depth/weights/',
     cam_mat_save_path = os.path.join('cam_matrix/cameraIntrinsic_apple.xml'),
     cloud_save_dir = "./point_clouds",
+    gt_background_depth = 66.9,
+    margin = 50,
+    voxel_size = 7e-7,
+    centered = 1,
     isCalib = False,
     isVoxelDown = False,
     isMeshGen = False, 
@@ -25,21 +29,26 @@ def predict(img_path, depth_save_dir,
         calibrator(calib_img_dir, results_save_dir, cam_mat_save_path=cam_mat_save_path, chessboardSize = chessboardSize)
 
 
-
     depth_calibration_pipeline = DepthCalibrationPipeline(segmentation_model_path, depth_model_base_path)
     depth_calibration_pipeline.run_base_block(img_path, depth_save_dir)
+    transformed_cloud_o3d = obj2cloud(depth_calibration_pipeline, gt_background_depth=gt_background_depth, 
+                    intrinsics_mat_path=cam_mat_save_path, margin=margin, centered=centered,
+                    cloud_save_dir=None)
 
-    cloud = obj2cloud(depth_calibration_pipeline, "cake", intrinsics_mat_path=cam_mat_save_path)
+    # depth_calibration_pipeline = DepthCalibrationPipeline(segmentation_model_path, depth_model_base_path)
+    # depth_calibration_pipeline.run_base_block(img_path, depth_save_dir)
 
-    transformed_cloud = cloud
-    transformed_cloud_np = transformed_cloud.points.to_numpy()
-    transformed_cloud_np = transformed_cloud_np[~np.isnan(transformed_cloud_np).any(axis=1),:]
-    transformed_cloud_o3d = o3d.geometry.PointCloud()
-    transformed_cloud_o3d.points = o3d.utility.Vector3dVector(transformed_cloud_np)
-    transformed_cloud_o3d.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    # cloud = obj2cloud(depth_calibration_pipeline, "cake", intrinsics_mat_path=cam_mat_save_path)
 
-    if isVoxelDown:
-        transformed_cloud_o3d = transformed_cloud_o3d.voxel_down_sample(voxel_size=2e-6)
+    # transformed_cloud = cloud
+    # transformed_cloud_np = transformed_cloud.points.to_numpy()
+    # transformed_cloud_np = transformed_cloud_np[~np.isnan(transformed_cloud_np).any(axis=1),:]
+    # transformed_cloud_o3d = o3d.geometry.PointCloud()
+    # transformed_cloud_o3d.points = o3d.utility.Vector3dVector(transformed_cloud_np)
+    # transformed_cloud_o3d.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+
+    # if isVoxelDown:
+    #     transformed_cloud_o3d = transformed_cloud_o3d.voxel_down_sample(voxel_size=2e-6)
 
     if not os.path.exists(cloud_save_dir):
         os.makedirs(cloud_save_dir)
@@ -78,5 +87,5 @@ def predict(img_path, depth_save_dir,
         volume = reduce(lambda a, b:  a + volume_under_triangle(b), get_triangles_vertices(surface.triangles, surface.vertices), 0)
         print(f"The volume is: {round(volume, 4)} m3")
     
-    return depth_calibration_pipeline
+    return depth_calibration_pipeline, transformed_cloud_o3d
 
