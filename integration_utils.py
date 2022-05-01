@@ -1,4 +1,5 @@
 from imports import *
+import streamlit as st
 
 class DepthEstimator:
   
@@ -334,9 +335,9 @@ def id2pc(img_path, depth_pfm_path, cam_mat_path, cloud_save_dir, depth_scale):
                                                             cy=camera_intrinsic_matrix[1][-1])
     else:
         camera_intrinsic = o3d.camera.PinholeCameraIntrinsic(o3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
-    
+    # camera_intrinsic = o3d.camera.PinholeCameraIntrinsic(o3d.camera.PinholeCameraIntrinsicParameters.PrimeSenseDefault)
     # print(camera_intrinsic.intrinsic_matrix)
-
+    # st.write(camera_intrinsic.intrinsic_matrix)
     idepth = read_pfm(depth_pfm_path)[0]
     idepth = idepth - np.amin(idepth)
     idepth /= np.amax(idepth)
