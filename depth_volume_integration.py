@@ -25,7 +25,7 @@ depth_calibration_pipeline.run_base_block(img_path, depth_save_dir)
 centered = 1
 transformed_cloud_o3d = obj2cloud(depth_calibration_pipeline, gt_background_depth=gt_background_depth, 
                   intrinsics_mat_path=cam_mat_path, margin=margin, centered=centered,
-                  voxel_size=voxel_size, cloud_save_dir=None)
+                  cloud_save_dir=None)
 
 cloud_save_dir = "./point_clouds"
 if not os.path.exists(cloud_save_dir):

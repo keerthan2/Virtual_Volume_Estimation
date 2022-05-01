@@ -358,7 +358,7 @@ def id2pc(img_path, depth_pfm_path, cam_mat_path, cloud_save_dir, depth_scale):
                                 write_ascii=False, compressed=False, print_progress=False)
     return pcd
 
-def obj2cloud(depth_calibration_pipeline, gt_background_depth, intrinsics_mat_path='cameraIntrinsic.xml', cloud_save_dir='pointclouds', margin=50, centered=1, voxel_size=0.0000007):
+def obj2cloud(depth_calibration_pipeline, gt_background_depth, intrinsics_mat_path='cameraIntrinsic.xml', cloud_save_dir='pointclouds', margin=50, centered=1):
   input_image_shape = depth_calibration_pipeline.segmentation_img.shape
   img_path = depth_calibration_pipeline.img_path
   fname = img_path.split('/')[-1]
@@ -390,6 +390,13 @@ def obj2cloud(depth_calibration_pipeline, gt_background_depth, intrinsics_mat_pa
   transformed_cloud_o3d.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
   return transformed_cloud_o3d
+
+def pc_post_process(pcd, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3):
+    cl, ind = pcd.remove_statistical_outlier(nb_neighbors=nb_neighbors,
+                                                    std_ratio=std_ratio)
+    pcd_clean = pcd.select_by_index(ind)
+    voxel_pcd = pcd_clean.voxel_down_sample(voxel_size=voxel_size)
+    return voxel_pcd
 
 def compute_volume(pcd):
     from scipy.spatial import ConvexHull
