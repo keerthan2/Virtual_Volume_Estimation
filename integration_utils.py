@@ -390,3 +390,8 @@ def obj2cloud(depth_calibration_pipeline, gt_background_depth, intrinsics_mat_pa
   transformed_cloud_o3d.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
   return transformed_cloud_o3d
+
+def compute_volume(pcd):
+    from scipy.spatial import ConvexHull
+    hull = ConvexHull(np.asarray(pcd.points))
+    return hull.volume
