@@ -5,6 +5,8 @@ import seaborn as sns
 from depth2cloud import *
 from integration_utils import *
 from PIL import Image
+import plotly.graph_objects as go
+import numpy as np
 
 def save_uploaded_file(uploaded_file, save_path='static/images'):
     if not os.path.exists(save_path):
@@ -60,8 +62,6 @@ if st.session_state.uploaded:
       else:
         st.session_state.save_img = False
       st.session_state.save_file_path = save_file_path
-    
-    st.write(save_file_path, st.session_state.save_file_path)
 
 
     if (save_file_path is not None) and (st.session_state.save_img is False):
@@ -90,11 +90,20 @@ if st.session_state.uploaded:
                                                       cloud_save_dir = cloud_save_dir)
           # st.write(st.session_state.run3d)
           if (st.session_state.run3d) and (save_file_path == st.session_state.save_file_path):
+              output_columns = st.columns([2, 1,3, 1, 3])
               pcd_file_name = f"{uploaded_file.name.split('.')[0]}.ply"
               pcd_path = os.path.join(cloud_save_dir, pcd_file_name)
               with open(pcd_path, 'rb') as f:
-                  st.download_button(label = 'Download 3D Model', data = f, file_name=pcd_file_name)
-              run_vol_comp = st.button("Run Volume Computation")
+                  output_columns[0].download_button(label = 'Download 3D Model', data = f, file_name=pcd_file_name)
+              pc_disp = output_columns[-1].button("Display Point Cloud")
+              if pc_disp:
+                pts = np.asarray(st.session_state.transformed_cloud_o3d.points)
+                x, y, z = pts[:,0], pts[:,1], pts[:,2]
+                fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, color='lightpink', opacity=0.50)])
+                st.plotly_chart(fig, use_container_width=True)
+
+
+              run_vol_comp = output_columns[2].button("Run Volume Computation")
               if run_vol_comp:
                   with st.spinner(text="Post Processing 3D model..."):
                       pcd = pc_post_process(st.session_state.transformed_cloud_o3d, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3)
