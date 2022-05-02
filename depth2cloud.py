@@ -1,7 +1,7 @@
 from imports import *
 from integration_utils import *
 from depth_estimation import *
-from pc_functions import *
+# from pc_functions import *
 
 # img_path = "imgs/sand_example.jpeg"
 
@@ -60,32 +60,32 @@ def predict(img_path, depth_save_dir,
 
     # o3d.visualization.draw_geometries([voxel_down_pcd])
 
-    """## Mesh generation"""
-    if isMeshGen:
-        transformed_cloud_o3d.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.0104,max_nn=15))
-        print('run Poisson surface reconstruction')
-        mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(transformed_cloud_o3d, depth=15, width=0, scale=2.1, linear_fit=True)
+    # """## Mesh generation"""
+    # if isMeshGen:
+    #     transformed_cloud_o3d.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.0104,max_nn=15))
+    #     print('run Poisson surface reconstruction')
+    #     mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(transformed_cloud_o3d, depth=15, width=0, scale=2.1, linear_fit=True)
 
 
-    """## Volume estimation"""
-    if isVolEst:
-        xyz = np.asarray(transformed_cloud_o3d.points)
-        xy_catalog = []
-        for point in xyz:
-            xy_catalog.append([point[0], point[1]])
-        tri = Delaunay(np.array(xy_catalog))
+    # """## Volume estimation"""
+    # if isVolEst:
+    #     xyz = np.asarray(transformed_cloud_o3d.points)
+    #     xy_catalog = []
+    #     for point in xyz:
+    #         xy_catalog.append([point[0], point[1]])
+    #     tri = Delaunay(np.array(xy_catalog))
 
-        xyz[0]
+    #     xyz[0]
 
-        xy_catalog = np.array(xy_catalog)
-        # plt.triplot(xy_catalog[:,0], xy_catalog[:,1], tri.simplices)
+    #     xy_catalog = np.array(xy_catalog)
+    #     # plt.triplot(xy_catalog[:,0], xy_catalog[:,1], tri.simplices)
 
-        surface = o3d.geometry.TriangleMesh()
-        surface.vertices = o3d.utility.Vector3dVector(xyz)
-        surface.triangles = o3d.utility.Vector3iVector(tri.simplices)
+    #     surface = o3d.geometry.TriangleMesh()
+    #     surface.vertices = o3d.utility.Vector3dVector(xyz)
+    #     surface.triangles = o3d.utility.Vector3iVector(tri.simplices)
 
-        volume = reduce(lambda a, b:  a + volume_under_triangle(b), get_triangles_vertices(surface.triangles, surface.vertices), 0)
-        print(f"The volume is: {round(volume, 4)} m3")
+    #     volume = reduce(lambda a, b:  a + volume_under_triangle(b), get_triangles_vertices(surface.triangles, surface.vertices), 0)
+    #     print(f"The volume is: {round(volume, 4)} m3")
     
     return depth_calibration_pipeline, transformed_cloud_o3d
 
