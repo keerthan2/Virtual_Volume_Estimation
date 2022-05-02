@@ -51,60 +51,57 @@ if (uploaded_file is not None) and (st.session_state.uploaded is False):
 elif (uploaded_file is None) and (st.session_state.uploaded is True):
   st.session_state.uploaded = False
 
-# if uploaded_file is not None:
 if st.session_state.uploaded:
     save_file_path = save_uploaded_file(uploaded_file)
+    
     if 'save_img' not in st.session_state:
       if save_file_path is not None:
         st.session_state.save_img = True
       else:
         st.session_state.save_img = False
+      st.session_state.save_file_path = save_file_path
+    
+    st.write(save_file_path, st.session_state.save_file_path)
+
+
     if (save_file_path is not None) and (st.session_state.save_img is False):
       st.session_state.save_img = True
     elif (save_file_path is None) and (st.session_state.save_img is True):
       st.session_state.save_img = False
-    # st.write(uploaded_file)
-    # st.write(st.session_state.uploaded)
-    # st.write(save_file_path)
-    # st.write(st.session_state.save_img)
-    if save_file_path is not None:
+    
+    if (save_file_path is not None):
         display_image = Image.open(uploaded_file)
-        st.info("This image appears to be valid :ballot_box_with_check:")
         upload_columns[1].image(display_image)
-        submit = upload_columns[1].button("Run 3D model generation")
-        # st.write(submit)
-        if 'run3d' not in st.session_state:
-          st.session_state.run3d = False
-        # if (submit) and (st.session_state.run3d is False):
-        #   st.session_state.run3d = True
-        # elif (not submit) and (st.session_state.run3d is True):
-        #   st.session_state.run3d = False
-        # st.write(st.session_state.run3d)
-        st.markdown("""---""")
-        if submit:
-            st.session_state.run3d = True
-            with st.spinner(text="Fetching the 3D model..."):
-                img_path = save_file_path
-                st.session_state.depth_calibration_pipeline, st.session_state.transformed_cloud_o3d = predict(img_path, depth_save_dir,
-                                                    segmentation_model_path = segmentation_model_path, 
-                                                    depth_model_base_path = depth_model_base_path,
-                                                    cam_mat_save_path = cam_mat_save_path,
-                                                    centered = centered,
-                                                    gt_background_depth = gt_background_depth,
-                                                    cloud_save_dir = cloud_save_dir)
-        # st.write(st.session_state.run3d)
-        if st.session_state.run3d:
-            pcd_file_name = f"{uploaded_file.name.split('.')[0]}.ply"
-            pcd_path = os.path.join(cloud_save_dir, pcd_file_name)
-            with open(pcd_path, 'rb') as f:
-                st.download_button(label = 'Download 3D Model', data = f, file_name=pcd_file_name)
-            run_vol_comp = st.button("Run Volume Computation")
-            if run_vol_comp:
-                with st.spinner(text="Post Processing 3D model..."):
-                    pcd = pc_post_process(st.session_state.transformed_cloud_o3d, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3)
-                with st.spinner(text="Running Volume Computation Algorithm..."):
-                    vol = compute_volume(st.session_state.transformed_cloud_o3d)
-                    # Display volume
-                    st.write('Computed Volume (cm^3) is: ',vol)
+        if (int(gt_background_depth) != 0):
+          submit = st.button("Run 3D model generation")
+          if 'run3d' not in st.session_state:
+            st.session_state.run3d = False
+          st.markdown("""---""")
+          if submit:
+              st.session_state.run3d = True
+              with st.spinner(text="Fetching the 3D model..."):
+                  img_path = save_file_path
+                  st.session_state.depth_calibration_pipeline, st.session_state.transformed_cloud_o3d = predict(img_path, depth_save_dir,
+                                                      segmentation_model_path = segmentation_model_path, 
+                                                      depth_model_base_path = depth_model_base_path,
+                                                      cam_mat_save_path = cam_mat_save_path,
+                                                      centered = centered,
+                                                      gt_background_depth = gt_background_depth,
+                                                      cloud_save_dir = cloud_save_dir)
+          # st.write(st.session_state.run3d)
+          if (st.session_state.run3d) and (save_file_path == st.session_state.save_file_path):
+              pcd_file_name = f"{uploaded_file.name.split('.')[0]}.ply"
+              pcd_path = os.path.join(cloud_save_dir, pcd_file_name)
+              with open(pcd_path, 'rb') as f:
+                  st.download_button(label = 'Download 3D Model', data = f, file_name=pcd_file_name)
+              run_vol_comp = st.button("Run Volume Computation")
+              if run_vol_comp:
+                  with st.spinner(text="Post Processing 3D model..."):
+                      pcd = pc_post_process(st.session_state.transformed_cloud_o3d, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3)
+                  with st.spinner(text="Running Volume Computation Algorithm..."):
+                      vol = compute_volume(st.session_state.transformed_cloud_o3d)
+                      # Display volume
+                      st.write('Computed Volume (cm^3) is: ',vol)
+          st.session_state.save_file_path = save_file_path
     else:
         st.error("This image appears to be invalid :no_entry_sign:")
