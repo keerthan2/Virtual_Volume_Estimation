@@ -96,17 +96,19 @@ if st.session_state.uploaded:
               with open(pcd_path, 'rb') as f:
                   output_columns[0].download_button(label = 'Download 3D Model', data = f, file_name=pcd_file_name)
               pc_disp = output_columns[-1].button("Display Point Cloud")
+              with st.spinner(text="Post Processing 3D model..."):
+                pcd = pc_post_process(st.session_state.transformed_cloud_o3d, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3)
               if pc_disp:
-                pts = np.asarray(st.session_state.transformed_cloud_o3d.points)
-                x, y, z = pts[:,0], pts[:,1], pts[:,2]
-                fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, color='lightpink', opacity=0.50)])
-                st.plotly_chart(fig, use_container_width=True)
+                with st.spinner(text="Working to Display an Interactive Point Cloud..."):
+                  pts = np.asarray(pcd.points)
+                  x, y, z = pts[:,0], pts[:,1], pts[:,2]
+                  # fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, color='lightpink', opacity=0.50)])
+                  fig = go.Figure(data=[go.Scatter3d(x=x, y=y, z=z)])
+                  st.plotly_chart(fig, use_container_width=True)
 
 
               run_vol_comp = output_columns[2].button("Run Volume Computation")
               if run_vol_comp:
-                  with st.spinner(text="Post Processing 3D model..."):
-                      pcd = pc_post_process(st.session_state.transformed_cloud_o3d, nb_neighbors=15, std_ratio=1.1, voxel_size=5e-3)
                   with st.spinner(text="Running Volume Computation Algorithm..."):
                       vol = compute_volume(st.session_state.transformed_cloud_o3d)
                       # Display volume
